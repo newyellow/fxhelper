@@ -1,0 +1,185 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #EEE;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+#token-display
+{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#token-display .card
+{
+    margin: 6px;
+    width: 400px;
+    height: 400px;
+    background-color: #fff;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+#token-display .card .card-header
+{
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    border: none;
+    display: flex;
+    align-items: center;
+    z-index: 50;
+
+    font-weight: bolder;
+    color: white;
+}
+
+#token-display .card-body
+{
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+}
+
+#token-display .card-footer
+{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    z-index: 50;
+}
+
+#token-display .card .token-title
+{
+    font-weight: bold;
+    font-size: 1.4em;
+}
+
+#token-display .card .token-id
+{
+    font-weight: lighter;
+    font-size: 1.0em;
+}
+
+#token-display .card-header .holder-img
+{
+    width: 48px;
+    height: 48px;
+    border-radius: 30px;
+    border: 2px solid #333;
+    background-color: #000;
+    background-size: cover;
+}
+
+#token-display .card-header .holder-name
+{
+    margin-left: 20px;
+    font-weight: 800;
+    font-size: medium;
+}
+
+#offer-string span
+{
+    font-size: 0.8em;
+}
+
+#offer-string .average
+{
+    font-weight: bold;
+    color: aquamarine;
+}
+
+#offer-string .low
+{
+    font-weight: bold;
+    color: red;
+}
+
+#offer-string .high
+{
+    font-weight: bold;
+    color: chartreuse;
+}
+
+main#main-display
+{
+    margin-top: 20px;
+    padding: 30px;
+    border: #DDD solid 1px;
+    border-radius: 20px;
+    min-height: 80vh;
+    background-color: #FFF;
+}
+
+.generativeToken {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    width: 330px;
+    padding: 10px;
+    margin: 12px;
+
+    border: 2px solid #AAA;
+    background-color: #EEE;
+
+    cursor: pointer;
+}
+
+.generativeToken .thumbnail {
+    width: 300px;
+    height: 300px;
+}
+
+.generativeToken .title {
+    width: 300px;
+
+    font-size: 20px;
+    font-weight: 600;
+    margin: 6px;
+}
+
+.generativeToken .desc {
+    width: 300px;
+
+    font-size: 14px;
+    margin: 6px;
+}
+
+.generativeToken .reserve {
+    width: 300px;
+    justify-content: flex-start;
+}
+
+.generativeToken .foundWalletTag {
+    padding: 2px;
+    margin: 4px;
+
+    display: inline-block;
+
+    border: 2px solid #AAA;
+    background-color: #FFF;
+}
+
+.NYBar {
+    width: 100%;
+    border: 1px solid #BBB;
+    border-radius: 10px;
+    padding: 10px;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.NYBar div {
+    margin: 10px;
+}

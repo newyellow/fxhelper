@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CVZB619TWH"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-CVZB619TWH');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fxHelper - offers</title>
+
+    <script src="src/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="src/styles.css" />
+    <script src="src/wallet-functions.js"></script>
+</head>
+
+<body>
+    <nav id="main-menu" class="navbar navbar-dark navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">fxHelper</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="page-offers.html">Check Offers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="page-tokens.html">Check Tokens</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="page-deca-quest.html">Deca Quest</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="page-settings.html">Wallet Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-display" class="container">
+        <div class="NYBar">
+            <div class="userIcon"></div>
+            <div class="userName">newyellow</div>
+
+            <div class="thumbnail-img">
+            </div>
+
+            <div class="token-title">Flossom #312</div>
+            <div class="sold-price">32 xtz</div>
+
+            <div class="sold-time">date</div>
+
+        </div>
+
+        <div id="status-bar" class="container mb-2">
+
+        </div>
+
+        <div id="token-display">
+
+        </div>
+    </main>
+
+    <script>
+        let tokenTemplate = $('#main-display .NYBar');
+        // tokenTemplate.css('display', 'none');
+
+        let _records = [];
+
+        $(window).on('load', function () {
+
+            CheckAccountSales();
+        });
+
+        const originalQuery = `
+        query Sales
+        {
+            users(filters: {id_in: [$$userIds$$]})
+            {
+                sales
+                {
+                    objkt
+                    {
+                        thumbnailUri
+                        name
+                        royalties
+                        generationHash
+                        issuer
+                        {
+                            id
+                            marketStats
+                            {
+                                floor
+                                listed
+                            }
+                        }
+                    }
+                    numericValue
+                    createdAt
+                    opHash
+                }
+                id
+                name
+                avatarUri
+            }
+        }
+        `;
+
+        async function CheckAccountSales() {
+
+            let wallets = getWallets();
+            let walletsNames = [];
+
+            let walletsPerRequest = 1;
+            let currentWalletIndex = 0;
+
+            // put names into id array
+            for (let i = 0; i < wallets.length; i++) {
+                walletsNames[wallets[i].address] = wallets[i].alias;
+            }
+
+            console.log(walletsNames);
+
+            $('#status-bar').html('loading data ...');
+
+            while(currentWalletIndex < wallets.length)
+            {
+                // get batch wallets
+                let requestWallets = [];
+                for(let i=0; i< walletsPerRequest; i++)
+                {
+                    requestWallets.push(wallets[currentWalletIndex].address);
+                    currentWalletIndex++;
+                }
+                console.log("REQUEST");
+                console.log(requestWallets);
+
+                // do batch
+                let _data = await getSalesData(requestWallets);
+
+                let showUserName = walletsNames[_address];
+                let showUserImgUrl = _data.avatarUri;
+
+                if(_data.name != null)
+                    showUserName = _data.name;
+                
+                if(showUserImgUrl != null)
+                    showUserImgUrl = getIpfsUrl(showUserImgUrl);
+                
+                for(let s=0; s<_data.sales.length; s++)
+                {
+                    let saleDate = new Date(_data.sales[s].createdAt);
+                    
+                    let newRecord = {
+                        'time': saleDate.getTime(),
+                        'data': _data.sales[s]
+                    };
+
+                    _records.push(newRecord);
+                }
+            }
+
+            console.log(_records);
+            $('#status-bar').html(`found ${offerCount} offers`);
+        }
+
+        function addUserTokens(tokens, userName, avatarUrl) {
+
+            for (let i = 0; i < tokens.length; i++) {
+                console.log(tokens[i]);
+                addGenTokenObject(tokens[i], userName, avatarUrl);
+            }
+        }
+
+        async function getSalesData(inputWallets) {
+
+            let queryWalletString = "";
+            for(let i=0; i< inputWallets.length; i++)
+            {
+                if(i != 0)
+                    queryWalletString += ",";
+
+                queryWalletString += `"${inputWallets[i]}"`;
+            }
+
+            console.log(queryWalletString);
+            
+
+            const idQuery = originalQuery.replace('$$userIds$$', queryWalletString);
+
+            console.log(idQuery);
+            let data = await fetchGraphQL(idQuery, "Sales");
+            console.log(data);
+            return data.user;
+        }
+
+        async function fetchGraphQL(operationsDoc, operationName) {
+            const result = await fetch(
+                "https://api.fxhash.xyz/graphql",
+                {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: operationsDoc
+                    })
+                }
+            );
+
+            let jsonData = await result.json();
+            return jsonData.data;
+        }
+
+        function addSaleRecord(saleData, userName, userImgUrl) {
+
+            let newObj = tokenTemplate.clone();
+            newObj.css('display', 'flex');
+
+            newObj.find('.card-body').on('click', () => {
+                window.open('https://fxhash.xyz/gentk/' + saleData.objkt.id);
+            });
+
+            // user data
+            newObj.find('.holder-name').html(userName);
+
+            if (userImgUrl != null)
+                newObj.find('.holder-img').css('background-image', `url('${userImgUrl}')`);
+
+            // process thumbnail
+            let thumbnailGatewayUri = getIpfsUrl(saleData.objkt.thumbnailUri);
+            newObj.css('background-image', `url(${thumbnailGatewayUri})`);
+            console.log(thumbnailGatewayUri);
+
+            // token id
+            let projectId = saleData.objkt.issuer.id;
+            $(newObj).find('.token-id .check-page').attr('href', `https://fxhash.xyz/marketplace/generative/${projectId}`);
+            $(newObj).find('.token-id .check-page').html(`#${projectId}`);
+
+            $(newObj).find('.token-id .check-holdings').attr('href', `page-tokens.html?project_id=${projectId}`);
+
+            // token name
+            $(newObj).find('.token-title').html(saleData.objkt.name);
+
+            // process price and market status
+            let offerPrice = xtzStrToValue(saleData.price);
+            let listedPrice = "--";
+
+            if (saleData.objkt.activeListing != null)
+                listedPrice = xtzStrToValue(saleData.objkt.activeListing.price);
+
+            let floorPrice = xtzStrToValue(saleData.objkt.issuer.marketStats.floor);
+            let offerPercent = Math.floor(offerPrice / floorPrice * 100);
+
+            let percentClass = "average";
+
+            if (offerPercent > 150)
+                percentClass = "high";
+            else if (offerPercent < 100)
+                percentClass = "low";
+
+            $(newObj).find('#offer-string').html(`Offer: ${offerPrice} <span class="${percentClass}">(${offerPercent}%)</span><br />listed: ${listedPrice}`);
+
+            $(newObj).find('#market-string').html(`floor: ${floorPrice}<br />listed items: ${offerData.objkt.issuer.marketStats.listed}`);
+
+            $('#token-display').append(newObj);
+        }
+
+        function xtzStrToValue(inputData) {
+            let inputStr = inputData.toString();
+            let resultValue = 0;
+
+            if (inputStr.length <= 6)
+                resultValue = parseFloat(inputStr) / 1000000.0;
+            else
+                resultValue = inputStr.substr(0, inputStr.length - 6);
+
+            return resultValue;
+        }
+
+        function getIpfsUrl(ipfsStr) {
+            return ipfsStr.replace('ipfs://', 'https://gateway.fxhash.xyz/ipfs/');
+        }
+    </script>
+</body>
+
+</html>
