@@ -11,7 +11,7 @@
 
         gtag('config', 'G-CVZB619TWH');
     </script>
-    
+
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,16 +39,16 @@
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="page-offers.html">Check Offers</a>
+                        <a class="nav-link" href="page-offers.html">Offers</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="page-tokens.html">Check Tokens</a>
+                        <a class="nav-link" href="page-tokens.html">Tokens</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="page-deca-quest.html">Deca Quest</a>
+                        <a class="nav-link active" href="page-deca-quest.html">Deca</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="page-settings.html">Wallet Settings</a>
+                        <a class="nav-link" href="page-settings.html">Settings</a>
                     </li>
                 </ul>
             </div>
@@ -80,22 +80,41 @@
             let inputUrl = $('#inputSearchQuery').val();
             console.log(inputUrl);
 
-            // split
-            let parts = inputUrl.split('%2F');
+            // check if it's old style or new style
+            if (inputUrl.includes('%2F')) {
+                // split
+                let parts = inputUrl.split('%2F');
 
-            console.log(parts);
-            let idStringParts = parts[6].split('%3F');
-            console.log(idStringParts);
+                console.log(parts);
+                let idStringParts = parts[6].split('%3F');
+                console.log(idStringParts);
 
-            let chainType = parts[4];
-            let contract = parts[5];
-            let idString = idStringParts[0];
+                let chainType = parts[4];
+                let contract = parts[5];
+                let idString = idStringParts[0];
 
-            let finalUrl = `https://deca.art/token/${chainType}/${contract}/${idString}`;
-            console.log(finalUrl);
+                let finalUrl = `https://deca.art/token/${chainType}/${contract}/${idString}`;
+                console.log(finalUrl);
 
-            $('#resultUrl').html(finalUrl);
-            $('#resultUrl').attr('href', finalUrl);
+                $('#resultUrl').html(finalUrl);
+                $('#resultUrl').attr('href', finalUrl);
+            }
+            else // new style
+            {
+                let parts = inputUrl.split('/');
+                //https://media.deca.systems/static/tezos/KT1U6EHmNxJTkvaWJ4ThczG4FSDaHC21ssvi/1140238?width=1000
+
+                console.log(parts);
+                
+                let chainType = parts[4];
+                let contract = parts[5];
+                let idString = parts[6].split('?')[0];
+
+                let finalUrl = `https://deca.art/token/${chainType}/${contract}/${idString}`;
+                
+                $('#resultUrl').html(finalUrl);
+                $('#resultUrl').attr('href', finalUrl);
+            }
         }
 
 
